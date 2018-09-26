@@ -16,27 +16,36 @@
 
 package com.karumi.katasuperheroes;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
+import static org.mockito.Mockito.when;
+
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
+
 import com.karumi.katasuperheroes.di.MainComponent;
 import com.karumi.katasuperheroes.di.MainModule;
+import com.karumi.katasuperheroes.matchers.RecyclerViewItemsCountMatcher;
 import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
-import it.cosenonjaviste.daggermock.DaggerMockRule;
-import java.util.Collections;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static org.mockito.Mockito.when;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import it.cosenonjaviste.daggermock.DaggerMockRule;
 
 @RunWith(AndroidJUnit4.class) @LargeTest public class MainActivityTest {
 
@@ -65,8 +74,39 @@ import static org.mockito.Mockito.when;
     onView(withText("¯\\_(ツ)_/¯")).check(matches(isDisplayed()));
   }
 
+  @Test
+  public void showOneSuperhero() {
+    givenThereAreAnySuperHeroes(1);
+
+    startActivity();
+
+    onView(withId(R.id.recycler_view)).check(matches(RecyclerViewItemsCountMatcher.recyclerViewHasItemCount(1)));
+  }
+
+  @Test
+  public void showNSuperheros() {
+    int numberOfSuperheroes = 10;
+    givenThereAreAnySuperHeroes(numberOfSuperheroes);
+
+    startActivity();
+
+    onView(withId(R.id.recycler_view)).check(matches(RecyclerViewItemsCountMatcher.recyclerViewHasItemCount(numberOfSuperheroes)));
+  }
+
   private void givenThereAreNoSuperHeroes() {
     when(repository.getAll()).thenReturn(Collections.<SuperHero>emptyList());
+  }
+
+  private void givenThereAreAnySuperHeroes(int number) {
+    List<SuperHero> superHeroes = new ArrayList<>();
+
+    for (int i = 0; i < number; i++) {
+      superHeroes.add(new SuperHero("SuperheroName - " + i,
+              "https://i.annihil.us/u/prod/marvel/i/mg/9/b0/537bc2375dfb9.jpg", false,
+              "Description for superhero: " + i));
+    }
+
+    when(repository.getAll()).thenReturn(superHeroes);
   }
 
   private MainActivity startActivity() {
