@@ -18,6 +18,7 @@ package com.karumi.katasuperheroes;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
@@ -25,15 +26,18 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.mockito.Mockito.when;
 
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.view.View;
 
 import com.karumi.katasuperheroes.di.MainComponent;
 import com.karumi.katasuperheroes.di.MainModule;
 import com.karumi.katasuperheroes.matchers.RecyclerViewItemsCountMatcher;
 import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
+import com.karumi.katasuperheroes.recyclerview.RecyclerViewInteraction;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
 
 import org.junit.Rule;
@@ -93,11 +97,26 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
     onView(withId(R.id.recycler_view)).check(matches(RecyclerViewItemsCountMatcher.recyclerViewHasItemCount(numberOfSuperheroes)));
   }
 
+  @Test
+  public void showCorrectNameAndNameForEachSuperhero() {
+    List<SuperHero> superHeroes = givenThereAreAnySuperHeroes(2);
+
+    startActivity();
+
+    RecyclerViewInteraction.<SuperHero>onRecyclerView(withId(R.id.recycler_view))
+            .withItems(superHeroes)
+            .check(new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
+              @Override public void check(SuperHero superHero, View view, NoMatchingViewException e) {
+                matches(hasDescendant(withText(superHero.getName()))).check(view, e);
+              }
+            });
+  }
+
   private void givenThereAreNoSuperHeroes() {
     when(repository.getAll()).thenReturn(Collections.<SuperHero>emptyList());
   }
 
-  private void givenThereAreAnySuperHeroes(int number) {
+  private List<SuperHero> givenThereAreAnySuperHeroes(int number) {
     List<SuperHero> superHeroes = new ArrayList<>();
 
     for (int i = 0; i < number; i++) {
@@ -107,6 +126,8 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
     }
 
     when(repository.getAll()).thenReturn(superHeroes);
+
+    return superHeroes;
   }
 
   private MainActivity startActivity() {
