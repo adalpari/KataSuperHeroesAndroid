@@ -63,7 +63,7 @@ public class SuperHeroDetailActivityTest {
     public void showNameOnToolbar() {
         SuperHero superHero = givenASuperhero(false);
 
-        startActivity();
+        startActivity(superHero);
 
         ToolbarMatcher.onToolbarWithTitle(superHero.getName());
     }
@@ -72,7 +72,7 @@ public class SuperHeroDetailActivityTest {
     public void showName() {
         SuperHero superHero = givenASuperhero(false);
 
-        startActivity();
+        startActivity(superHero);
 
         onView(allOf(withId(R.id.tv_super_hero_name), withText(superHero.getName()))).check(matches(isDisplayed()));
     }
@@ -81,27 +81,36 @@ public class SuperHeroDetailActivityTest {
     public void showDescription() {
         SuperHero superHero = givenASuperhero(false);
 
-        startActivity();
+        startActivity(superHero);
 
         onView(withText(superHero.getDescription())).check(matches(isDisplayed()));
     }
 
     @Test
     public void showAvenderBadge() {
-        givenASuperhero(true);
+        SuperHero superHero = givenASuperhero(true);
 
-        startActivity();
+        startActivity(superHero);
 
         onView(withId(R.id.iv_avengers_badge)).check(matches(isDisplayed()));
     }
 
     @Test
     public void hideAvenderBadge() {
-        givenASuperhero(false);
+        SuperHero superHero = givenASuperhero(false);
 
-        startActivity();
+        startActivity(superHero);
 
         onView(withId(R.id.iv_avengers_badge)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
+    public void hideProgressBarOnSuperheroLoaded() {
+        SuperHero superHero = givenASuperhero(false);
+
+        startActivity(superHero);
+
+        onView(withId(R.id.progress_bar)).check(matches(not(isDisplayed())));
     }
 
     private SuperHero givenASuperhero(boolean isAvenger) {
@@ -116,9 +125,9 @@ public class SuperHeroDetailActivityTest {
         return superHero;
     }
 
-    private SuperHeroDetailActivity startActivity() {
+    private SuperHeroDetailActivity startActivity(SuperHero superHero) {
         Intent intent = new Intent(InstrumentationRegistry.getTargetContext(), SuperHeroDetailActivity.class);
-        intent.putExtra(SUPER_HERO_NAME_KEY, "Winter Soldier");
+        intent.putExtra(SUPER_HERO_NAME_KEY, superHero.getName());
         return activityRule.launchActivity(intent);
     }
 }
