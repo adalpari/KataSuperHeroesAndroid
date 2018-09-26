@@ -9,6 +9,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.karumi.katasuperheroes.ui.view.SuperHeroDetailActivity.SUPER_HERO_NAME_KEY;
 
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -83,6 +84,24 @@ public class SuperHeroDetailActivityTest {
         startActivity();
 
         onView(withText(superHero.getDescription())).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void showAvenderBadge() {
+        givenASuperhero(true);
+
+        startActivity();
+
+        onView(withId(R.id.iv_avengers_badge)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void hideAvenderBadge() {
+        givenASuperhero(false);
+
+        startActivity();
+
+        onView(withId(R.id.iv_avengers_badge)).check(matches(not(isDisplayed())));
     }
 
     private SuperHero givenASuperhero(boolean isAvenger) {
