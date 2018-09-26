@@ -20,9 +20,11 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +32,7 @@ import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
@@ -83,7 +86,7 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
 
   @Test
   public void showOneSuperhero() {
-    givenThereAreAnySuperHeroes(1);
+    givenThereAreAnySuperHeroes(1, false);
 
     startActivity();
 
@@ -93,7 +96,7 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
   @Test
   public void showNSuperheros() {
     int numberOfSuperheroes = 10;
-    givenThereAreAnySuperHeroes(numberOfSuperheroes);
+    givenThereAreAnySuperHeroes(numberOfSuperheroes, false);
 
     startActivity();
 
@@ -102,7 +105,7 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
 
   @Test
   public void showCorrectNameAndNameForEachSuperhero() {
-    List<SuperHero> superHeroes = givenThereAreAnySuperHeroes(2);
+    List<SuperHero> superHeroes = givenThereAreAnySuperHeroes(2, false);
 
     startActivity();
 
@@ -117,7 +120,7 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
 
   @Test
   public void showTitleForTheApp() {
-    givenThereAreAnySuperHeroes(5);
+    givenThereAreAnySuperHeroes(5, false);
 
     startActivity();
 
@@ -126,14 +129,54 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
 
   @Test
   public void hideEmptyTextWhenHaveItems() {
-    givenThereAreAnySuperHeroes(5);
+    givenThereAreAnySuperHeroes(5, false);
 
     startActivity();
 
     onView(withText("¯\\_(ツ)_/¯")).check(matches(not(isDisplayed())));
   }
 
-  private String getResourceString(int id) {
+  @Test
+  public void showAvengersBadge() {
+    List<SuperHero> superHeroes = givenThereAreAnySuperHeroes(10, true);
+
+    startActivity();
+
+    RecyclerViewInteraction.<SuperHero>onRecyclerView(withId(R.id.recycler_view))
+            .withItems(superHeroes)
+            .check(new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
+              @Override public void check(SuperHero superHero, View view, NoMatchingViewException e) {
+                  matches(hasDescendant(allOf(withId(R.id.iv_avengers_badge), withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE))))
+                          .check(view, e);
+              }
+            });
+  }
+
+  @Test
+  public void hideAvengersBadge() {
+    List<SuperHero> superHeroes = givenThereAreAnySuperHeroes(10, false);
+
+    startActivity();
+
+    RecyclerViewInteraction.<SuperHero>onRecyclerView(withId(R.id.recycler_view))
+            .withItems(superHeroes)
+            .check(new RecyclerViewInteraction.ItemViewAssertion<SuperHero>() {
+              @Override public void check(SuperHero superHero, View view, NoMatchingViewException e) {
+                  matches(hasDescendant(allOf(withId(R.id.iv_avengers_badge), withEffectiveVisibility(ViewMatchers.Visibility.GONE))))
+                          .check(view, e);
+              }
+            });
+  }
+
+    @Test
+    public void superheroIsOpenOnClick() {
+        List<SuperHero> superHeroes = givenThereAreAnySuperHeroes(10, false);
+
+        startActivity();
+
+    }
+
+    private String getResourceString(int id) {
     Context targetContext = InstrumentationRegistry.getTargetContext();
     return targetContext.getResources().getString(id);
   }
@@ -142,12 +185,12 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
     when(repository.getAll()).thenReturn(Collections.<SuperHero>emptyList());
   }
 
-  private List<SuperHero> givenThereAreAnySuperHeroes(int number) {
+  private List<SuperHero> givenThereAreAnySuperHeroes(int number, boolean isAvenger) {
     List<SuperHero> superHeroes = new ArrayList<>();
 
     for (int i = 0; i < number; i++) {
       superHeroes.add(new SuperHero("SuperheroName - " + i,
-              "https://i.annihil.us/u/prod/marvel/i/mg/9/b0/537bc2375dfb9.jpg", false,
+              "https://i.annihil.us/u/prod/marvel/i/mg/9/b0/537bc2375dfb9.jpg", isAvenger,
               "Description for superhero: " + i));
     }
 
