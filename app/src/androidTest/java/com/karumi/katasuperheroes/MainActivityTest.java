@@ -23,8 +23,10 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Mockito.when;
 
+import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
@@ -35,6 +37,7 @@ import android.view.View;
 import com.karumi.katasuperheroes.di.MainComponent;
 import com.karumi.katasuperheroes.di.MainModule;
 import com.karumi.katasuperheroes.matchers.RecyclerViewItemsCountMatcher;
+import com.karumi.katasuperheroes.matchers.ToolbarMatcher;
 import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.recyclerview.RecyclerViewInteraction;
@@ -110,6 +113,29 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
                 matches(hasDescendant(withText(superHero.getName()))).check(view, e);
               }
             });
+  }
+
+  @Test
+  public void showTitleForTheApp() {
+    givenThereAreAnySuperHeroes(5);
+
+    startActivity();
+
+    ToolbarMatcher.onToolbarWithTitle(getResourceString(R.string.app_name));
+  }
+
+  @Test
+  public void hideEmptyTextWhenHaveItems() {
+    givenThereAreAnySuperHeroes(5);
+
+    startActivity();
+
+    onView(withText("¯\\_(ツ)_/¯")).check(matches(not(isDisplayed())));
+  }
+
+  private String getResourceString(int id) {
+    Context targetContext = InstrumentationRegistry.getTargetContext();
+    return targetContext.getResources().getString(id);
   }
 
   private void givenThereAreNoSuperHeroes() {
