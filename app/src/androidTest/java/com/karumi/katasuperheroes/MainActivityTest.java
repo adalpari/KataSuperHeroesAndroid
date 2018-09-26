@@ -17,7 +17,11 @@
 package com.karumi.katasuperheroes;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
@@ -26,11 +30,13 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.NoMatchingViewException;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.test.runner.AndroidJUnit4;
@@ -45,6 +51,7 @@ import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.recyclerview.RecyclerViewInteraction;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
+import com.karumi.katasuperheroes.ui.view.SuperHeroDetailActivity;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -170,10 +177,18 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
 
     @Test
     public void superheroIsOpenOnClick() {
-        List<SuperHero> superHeroes = givenThereAreAnySuperHeroes(10, false);
+        int positionToClick = 1;
+        List<SuperHero> superHeroes = givenThereAreAnySuperHeroes(5, false);
+        SuperHero superheroToClick = superHeroes.get(positionToClick);
 
         startActivity();
 
+        onView(withId(R.id.recycler_view)).
+                perform(RecyclerViewActions.actionOnItemAtPosition(positionToClick, click()));
+
+
+        intended(hasComponent(SuperHeroDetailActivity.class.getCanonicalName()));
+        intended(hasExtra("super_hero_name_key", superheroToClick.getName()));
     }
 
     private String getResourceString(int id) {
@@ -195,11 +210,12 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
     }
 
     when(repository.getAll()).thenReturn(superHeroes);
+    when(repository.getByName(anyString())).thenReturn(superHeroes.get(0));
 
     return superHeroes;
   }
 
-  private MainActivity startActivity() {
+    private MainActivity startActivity() {
     return activityRule.launchActivity(null);
   }
 }
