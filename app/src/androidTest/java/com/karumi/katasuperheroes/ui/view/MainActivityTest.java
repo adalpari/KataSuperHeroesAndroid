@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.karumi.katasuperheroes;
+package com.karumi.katasuperheroes.ui.view;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -43,6 +43,8 @@ import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
 
+import com.karumi.katasuperheroes.R;
+import com.karumi.katasuperheroes.SuperHeroesApplication;
 import com.karumi.katasuperheroes.di.MainComponent;
 import com.karumi.katasuperheroes.di.MainModule;
 import com.karumi.katasuperheroes.matchers.RecyclerViewItemsCountMatcher;
@@ -50,8 +52,6 @@ import com.karumi.katasuperheroes.matchers.ToolbarMatcher;
 import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.recyclerview.RecyclerViewInteraction;
-import com.karumi.katasuperheroes.ui.view.MainActivity;
-import com.karumi.katasuperheroes.ui.view.SuperHeroDetailActivity;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -97,7 +97,7 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
 
     startActivity();
 
-    onView(withId(R.id.recycler_view)).check(matches(RecyclerViewItemsCountMatcher.recyclerViewHasItemCount(1)));
+    onView(ViewMatchers.withId(R.id.recycler_view)).check(matches(RecyclerViewItemsCountMatcher.recyclerViewHasItemCount(1)));
   }
 
   @Test
@@ -192,8 +192,8 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
     }
 
     private String getResourceString(int id) {
-    Context targetContext = InstrumentationRegistry.getTargetContext();
-    return targetContext.getResources().getString(id);
+      Context targetContext = InstrumentationRegistry.getTargetContext();
+        return targetContext.getResources().getString(id);
   }
 
   private void givenThereAreNoSuperHeroes() {
@@ -215,7 +215,7 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
     return superHeroes;
   }
 
-    private MainActivity startActivity() {
-    return activityRule.launchActivity(null);
+  private MainActivity startActivity() {
+      return activityRule.launchActivity(null);
   }
 }

@@ -19,6 +19,7 @@ package com.karumi.katasuperheroes.ui.view;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,7 +33,8 @@ import butterknife.Bind;
 
 public class SuperHeroDetailActivity extends BaseActivity implements SuperHeroDetailPresenter.View {
 
-  private static final String SUPER_HERO_NAME_KEY = "super_hero_name_key";
+  @VisibleForTesting
+  public static final String SUPER_HERO_NAME_KEY = "super_hero_name_key";
 
   @Inject SuperHeroDetailPresenter presenter;
 
